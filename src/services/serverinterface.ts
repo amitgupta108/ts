@@ -86,6 +86,14 @@ export class ServerInterface {
                 Eventer.eventDispatch('orderbook', orders);
             });
 
+            this.socket?.on("exit", (response: string) => {
+                window.location.reload();
+            });
+
+            this.socket?.on("hb", (resp: any) => {
+                Eventer.eventDispatch('heartbeat', { connected: resp?.order_socket === 1 });
+            });
+
             /*            
             this.socket?.on("stream", (response: string) => {
                 if (response === "paused")
@@ -96,20 +104,6 @@ export class ServerInterface {
                     bottom_btns[2].disabled = false;
                     bottom_btns[5].disabled = false;
                 }
-            });
-
-            this.socket?.on("exit", (response: string) => {
-                bottom_btns.forEach((btn, i) => {
-                    btn.disabled = i === 0 ? false : true;
-                });
-                window.location.reload();
-            });
-
-            this.socket?.on("hb", (resp: any) => {
-                if (resp?.order_socket === 1)
-                    socn.style.backgroundColor = "#4CAF50";
-                else
-                    socn.style.backgroundColor = "#f44336";
             });
             */
         }
@@ -137,6 +131,14 @@ export class ServerInterface {
 
     orderbook() {
         this.emit('orderbook', this.profile?.stockCode);
+    }
+
+    cancelOrder(orderid: string) {
+        this.emit('cancel', orderid);
+    }
+
+    exit() {
+        this.emit('exit', 'exit');
     }
 
     emit(event: string, data: any) {

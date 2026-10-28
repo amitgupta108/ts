@@ -4,14 +4,14 @@ import { RowFactory } from "../utils/factory.js";
 import { UIApp } from "../app/ui.js";
 import { Eventer } from "../services/eventservice.js";
 
-const decimal2 = ['booked_qty', 'avg_price', 'ltp', 'unrealized_pl', 'total_pl'];
+const decimal2 = ['realized_pl', 'avg_price', 'ltp', 'unrealized_pl', 'total_pl'];
 
 export class Position {
     symbol: string;
     uiApp: UIApp;
     container: HTMLDivElement;
     booked: BookedPosition = { buyv: 0, sellv: 0, quantity: 0 };
-    open: OpenPosition = { quantity: 0, value: 0, avgprice: 0 };
+    open: OpenPosition = { quantity: 0, pnl: 0, avgprice: 0 };
     state: string = "initial";
     orders: Map<string, Order> = new Map<string, Order>();
     row?: HTMLTableRowElement;
@@ -59,14 +59,14 @@ export class Position {
         this.row!.addEventListener('click', (e) => {
             e.stopPropagation();
             if ((e.target as HTMLButtonElement).id === 'order-display-btn') {
-                this.uiApp.listOrders(this.symbol);
+                this.uiApp.filterOrders(this.value('scrip')!);
             }
         }, true);
 
     }
 
-    value(p: string, v: number | string | undefined = undefined): string | number | undefined {
-        const idx = (this.row_fields as any)[p as string];
+    value(p: string, v: number | string | undefined = undefined): string | undefined {
+        const idx = (this.row_fields as any)[p];
 
         const cell = this.row!.cells[idx] as HTMLElement;
         if (v != undefined)
@@ -78,53 +78,67 @@ export class Position {
     handleOrder(order: Order) {
         this.orders.set(order.orderid, order);
         if (order.state === ORDERSTATE.OPENED)
-            this.updateOpenPositionDisplay();
+            this.openOrder('create');
         else
-            this.onOrderUpdate(order);
+            this.executedOrder(order);
 
         (this.row?.querySelector('#pos-exit-cb') as HTMLInputElement).disabled = this.open.quantity === 0;
     }
 
-    updateOpenPositionDisplay() {
+    openOrder(action: 'create' | 'close') {
         const opencount = Array.from(this.orders.values()).filter((o) => o.state === ORDERSTATE.OPENED).length;
         const label = this.row!.querySelector('#order-display-btn') as HTMLButtonElement;
         label!.innerText = (opencount === 0 ? 'N' : String(opencount));
         label!.style.backgroundColor = (opencount === 0 ? 'white' : 'skyblue');
     }
 
-    onOrderUpdate(order: Order) {
-        this.updateOpenPositionDisplay();
-
-        if (this.open.quantity !== 0 && Math.sign(this.open.quantity) !== (order.action === ORDERACTION.BUY ? 1 : -1)) {
-            this.updateBookedPosition(order);
-        }
-        this.updateOpenPosition(order);
+    executedOrder(order: Order) {
+        this.openOrder('close');
         this.value('ltp', order.pricedAt!);
-    }
-
-    updateBookedPosition(order: Order) {
-        if (order.action === ORDERACTION.BUY) {
-            this.booked.buyv += order.filled_q! * order.pricedAt!;
-        } else {
-            this.booked.sellv += order.filled_q! * order.pricedAt!;
-        }
-        this.booked.quantity += order.filled_q!;
+        this.calculatePL();
 
         this.value('booked_qty', this.booked.quantity);
         this.value('realized_pl', this.booked.sellv - this.booked.buyv);
-    }
-
-    updateOpenPosition(order: Order) {
-        const buysell = order.action === ORDERACTION.BUY ? 1 : -1;
-        this.open.quantity += order.filled_q! * buysell;
-        this.open.value += order.filled_q! * order.pricedAt! * buysell;
-        this.open.avgprice = this.open.quantity !== 0 ? this.open.value / this.open.quantity : 0;
-
         this.value('avg_price', this.open.avgprice ?? order.pricedAt!);
         this.value('open_qty', this.open.quantity);
         this.value('unrealized_pl', (Number(this.value('avg_price')!) - order.pricedAt!) * this.open.quantity);
         this.value('total_pl', Number(this.value('unrealized_pl')) + Number(this.value('realized_pl')));
+
         (this.row!.querySelector('#pos-exit-cb') as HTMLInputElement).disabled = this.open.quantity === 0;
+    }
+
+    calculatePL() {
+        let buyv = 0; let sellv = 0;
+        let buyq = 0; let sellq = 0;
+
+        const completed = Array.from(this.orders.values()).filter((o) => {
+            return o.state === ORDERSTATE.COMPLETED;
+        });
+
+        for (const order of completed) {
+            if (order.action === ORDERACTION.BUY) {
+                buyq += order.filled_q!;
+                buyv += order.filled_q! * order.pricedAt!;
+            } else {
+                sellq += order.filled_q!;
+                sellv += order.filled_q! * order.pricedAt!;
+            }
+
+            const squared: boolean = (sellq === buyq);
+            this.booked.quantity = Math.min(sellq, buyq);
+            this.open.quantity = sellq - buyq;
+
+            if (squared) {
+                this.booked.buyv = buyv;
+                this.booked.sellv = sellv;
+
+                this.open.pnl = 0;
+                this.open.avgprice = 0;
+            }
+
+            this.open.pnl = sellv - buyv;
+            this.open.avgprice = this.open.quantity !== 0 ? this.open.pnl / this.open.quantity : 0;
+        }
     }
 
     onQuote(q: Quote) {
@@ -132,4 +146,40 @@ export class Position {
         this.value('unrealized_pl', (Number(this.value('ltp')!) - Number(this.value('avg_price')!)) * this.open.quantity);
         this.value('total_pl', (Number(this.value('unrealized_pl')) + Number(this.value('realized_pl'))));
     }
+    /*
+        executedOrder(order: Order) {
+            this.openOrder('close');
+    
+            if (this.open.quantity !== 0 && Math.sign(this.open.quantity) !== (order.action === ORDERACTION.BUY ? 1 : -1)) {
+                this.reducePosition(order);
+            }
+            this.increasePosition(order);
+            this.value('ltp', order.pricedAt!);
+        }
+    
+        reducePosition(order: Order) {
+            if (order.action === ORDERACTION.BUY) {
+                this.booked.buyv += order.filled_q! * order.pricedAt!;
+            } else {
+                this.booked.sellv += order.filled_q! * order.pricedAt!;
+            }
+            this.booked.quantity += order.filled_q!;
+    
+            this.value('booked_qty', this.booked.quantity);
+            this.value('realized_pl', this.booked.sellv - this.booked.buyv);
+        }
+    
+        increasePosition(order: Order) {
+            const buysell = order.action === ORDERACTION.BUY ? 1 : -1;
+            this.open.quantity += order.filled_q! * buysell;
+            this.open.value += order.filled_q! * order.pricedAt! * buysell;
+            this.open.avgprice = this.open.quantity !== 0 ? this.open.value / this.open.quantity : 0;
+    
+            this.value('avg_price', this.open.avgprice ?? order.pricedAt!);
+            this.value('open_qty', this.open.quantity);
+            this.value('unrealized_pl', (Number(this.value('avg_price')!) - order.pricedAt!) * this.open.quantity);
+            this.value('total_pl', Number(this.value('unrealized_pl')) + Number(this.value('realized_pl')));
+            (this.row!.querySelector('#pos-exit-cb') as HTMLInputElement).disabled = this.open.quantity === 0;
+        }
+    */
 }

@@ -4,19 +4,7 @@
     justify-content: flex-start;
     height: 30px;
     width: 100%;
-    border: 0px solid #f4f0f0;
-}
-
-.tab-content {
-    display: none;
-    background-color: var(--body-background);
-    border: 0px solid #f4f0f0;
-    overflow: auto;
-}
-
-.active {
-    display: flex;
-    flex-grow: 1;
+    border: 0px solid var(--inside-border);
 }
 
 .tab {
@@ -35,10 +23,22 @@
     border-top-right-radius: var(--border-radius);
 }
 
-.active-tab {
+.tab-content {
+    display: none;
+    background-color: var(--body-background);
+    border: 0.5px solid var(--inside-border);
+    overflow: auto;
+    flex-grow: 1;
+}
+
+.active-label {
     display: flex;
     background-color: var(--element-hover);
-    margin: 0px !important;
+    margin-bottom: 0px !important;
+}
+
+.active-content {
+    display: flex;
 }
 
 .tab:hover {
@@ -47,8 +47,8 @@
 
 .action-tab {
     display: flex;
-    flex: 1;
     justify-content: flex-end;
     gap: 6px;
     margin: 1px;
+    flex: 2;
 }

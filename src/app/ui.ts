@@ -28,8 +28,6 @@ export class UIApp {
         this.parent = parent;
         this.layout = new Layout(this);
         this.navbar = new NavBar('nav-bar', this);
-
-        this.order_dialog = new OrderWindow('order-window', this);
     }
 
     init(profile: AppProfile) {
@@ -46,10 +44,13 @@ export class UIApp {
 
         this.c_optionchain = new OptionChain(expiry1, `${tg_2_id}_${expiry1}_content`, this);
         this.c_optionchain.init();
-        if (expiry2 !== undefined) {
+        if (expiry2) {
             this.n_optionchain = new OptionChain(expiry2, `${tg_2_id}_${expiry2}_content`, this);
             this.n_optionchain.init();
         }
+
+        this.order_dialog = new OrderWindow('order-window', this);
+        this.order_dialog?.init();
 
         this.positions = new Positions(`${tg_3_id}_Positions_content`, this);
         this.positions.init();
@@ -57,10 +58,7 @@ export class UIApp {
         this.orderlist = new OrderList(`${tg_3_id}_Orderbook_content`, this);
         this.orderlist.init();
 
-
         this.navbar.enableButton("start-btn");
-
-        this.order_dialog?.init();
     }
 
     loadPrimaryChart() {
@@ -88,7 +86,7 @@ export class UIApp {
     }
 
     loadStrategyChart() {
-        this.layout.getChartGroup().switchTabs(1);
+        this.layout.getChartGroup().switchTabs('Chart2');
         const expiry = this.layout.getOCGroup().getActiveTabLabel()
 
         const symbols: string[] = OptionChain.optionChains.get(expiry)!.getHighlightedRowSymbols();
@@ -174,12 +172,20 @@ export class UIApp {
     }
 
     orderbook() {
-        this.layout.getPositionsGroup().switchTabs(1);
+        this.layout.getPositionsGroup().switchTabs('Orderbook');
         this.parent.orderbook();
     }
 
-    listOrders(symbol: string) {
-        this.orderlist?.listOrders(symbol);
-        this.layout.getPositionsGroup().switchTabs(1);
+    filterOrders(shortname: string) {
+        this.orderlist?.filterOrders(shortname);
+        this.layout.getPositionsGroup().switchTabs('Orderbook');
+    }
+
+    cancelOrder(orderid: string) {
+        this.parent.cancelOrder(orderid);
+    }
+
+    exit() {
+        this.parent.exit();
     }
 }

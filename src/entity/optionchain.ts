@@ -16,7 +16,7 @@ export class OptionChain {
     container: HTMLDivElement;
     atm: number = 0;
     row_map: Map<string, any> = new Map();
-    OTMRange = { high: 8, low: 0 };
+    OTMRange = { high: 8, low: 1 };
     parent: UIApp;
     interval: number;
 
@@ -32,17 +32,17 @@ export class OptionChain {
     init() {
         const h_call_tbl = document.createElement('table');
         h_call_tbl.classList.add('oc-table');
-        this.container.appendChild(h_call_tbl);
 
         const h_put_tbl = document.createElement('table');
         h_put_tbl.classList.add('oc-table');
-        this.container.appendChild(h_put_tbl);
 
         const range = this.OTMRange.high - this.OTMRange.low;
         for (var i = 0; i <= range; i++) {
             h_call_tbl.append(this.createRow('CE'));
             h_put_tbl.append(this.createRow('PE'));
         }
+        this.container.append(h_call_tbl, h_put_tbl);
+
         this.setupListenersEx();
     }
 
@@ -92,23 +92,25 @@ export class OptionChain {
             const range = this.OTMRange.high - this.OTMRange.low;
 
             this.row_map.clear();
-            for (var i = 0; i < range * 2; i++) {
-                if (i < range)
-                    this.strike(this.atm + (this.OTMRange.low + i) * this.interval, 'CE', i);
-                else
-                    this.strike(this.atm - (this.OTMRange.high - i) * this.interval, 'PE', i);
+            for (var i = 0; i < range; i++) {
+                this.strike('CE', i);
+                this.strike('PE', i);
             }
         }
     }
 
-    strike(strike: number, type: 'CE' | 'PE', i: number) {
-        const className = type === 'CE' ? 'tr-straight' : 'tr-reverse';
-        const row = this.container.querySelector(`.${className}:nth-child(${i + 1})`) as HTMLTableRowElement;
+    strike(type: 'CE' | 'PE', i: number) {
 
-        let symbol = this.parent.getAppProfile('stockCode') + this.expiry + strike + type;
+        const strike = type === 'CE' ? this.atm + (this.OTMRange.low + i) * this.interval :
+            this.atm - (this.OTMRange.high - i) * this.interval;
+        const symbol = this.parent.getAppProfile('stockCode') + this.expiry + strike + type;
+
+        const [call_tbl, put_tbl] = this.container.querySelectorAll('table');
+        const rows = type === 'CE' ? call_tbl!.rows : put_tbl!.rows;
+        const row = rows[i] as HTMLTableRowElement;
+        this.row_map.set(symbol, row);
         (row.cells[2]!.childNodes[3]! as HTMLElement).textContent = String(strike);
         row.title = symbol;
-        this.row_map.set(symbol, row);
     }
 
     onQuote(q: ExQuote): void {

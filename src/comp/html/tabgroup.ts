@@ -6,23 +6,10 @@ export class TabGroup extends EventTarget {
 	private labels!: string[];
 	private parent: UIApp;
 
-
 	listener = (e: MouseEvent) => {
 		e.stopPropagation();
 		const target = e.target as HTMLDivElement;
-
-		const label_panes = this.self.getElementsByClassName("tab");
-		const content_panes = this.self.getElementsByClassName("tab-content");
-
-		for (var i = 0; i < label_panes.length; i++) {
-			(label_panes[i] as HTMLElement).classList.remove("active-tab");
-			(content_panes[i] as HTMLElement).style.display = "none";
-
-			if ((label_panes[i] as HTMLElement).id === target.id) {
-				(label_panes[i] as HTMLElement).classList.add('active-tab');
-				(content_panes[i] as HTMLElement).style.display = 'flex';
-			}
-		}
+		this.switchTabs(target.textContent as string);
 	};
 
 	constructor(id: string, container: string, parent: UIApp) {
@@ -57,8 +44,9 @@ export class TabGroup extends EventTarget {
 
 	render(names: string[]): HTMLDivElement {
 		this.labels = names;
+		const len = names.length;
 
-		for (var i = 0; i < names.length; i++) {
+		for (var i = 0; i < len; i++) {
 			const label_pane = document.createElement("div") as HTMLDivElement;
 			label_pane.id = `${this.self.id}_${names[i]}`;
 			label_pane.textContent = names[i]!;
@@ -70,8 +58,8 @@ export class TabGroup extends EventTarget {
 			content_pane.classList.add("tab-content");
 
 			if (i === 0) {
-				label_pane.classList.add("active-tab");
-				content_pane.classList.add("active");
+				label_pane.classList.add("active-label");
+				content_pane.classList.add("active-content");
 			}
 			this.label_group.appendChild(label_pane);
 			this.self.appendChild(content_pane);
@@ -91,7 +79,7 @@ export class TabGroup extends EventTarget {
 	}
 
 	getActiveContentPane(): HTMLDivElement {
-		const c = this.self.querySelector('.active') as HTMLDivElement;
+		const c = this.self.querySelector('.active-content') as HTMLDivElement;
 		if (c)
 			return c;
 
@@ -99,27 +87,40 @@ export class TabGroup extends EventTarget {
 	}
 
 	getActiveTabLabel(): string {
-		const tab = this.self.querySelector('.active-tab') as HTMLDivElement;
+		const tab = this.self.querySelector('.active-label') as HTMLDivElement;
 		if (tab)
 			return tab.textContent as string;
 
 		throw new Error(`No active tab label found in ${this.self.id}`);
 	}
 
+	getContentPaneforTab(label: string): HTMLDivElement {
+		const c = this.self.querySelector(`#${this.self.id}_${label}_content`) as HTMLDivElement;
+		if (c)
+			return c;
+
+		throw new Error(`No content pane found for tab ${label}`);
+	}
+
 	getLabel(index: number): string | null {
 		return this.labels[index] || null;
 	}
 
-	switchTabs(idx: number) {
+	getTabByLabel(label: string) {
+		return this.self.querySelector(`#${this.self.id}_${label}`);
+	}
+
+	switchTabs(name: string) {
 		const tabs = this.label_group.children;
 		const panes = this.self.querySelectorAll('div[id$="_content"]');
 
 		for (var i = 0; i < tabs.length - 1; i++) {
-			(tabs[i] as HTMLElement).classList.remove('active-tab');
+			(tabs[i] as HTMLElement).classList.remove("active-label");
+			(panes[i] as HTMLElement).classList.remove("active-content");
 		}
 
-		(tabs[idx] as HTMLElement).classList.add('active-tab');
-		(panes[idx] as HTMLElement).classList.add('active');
+		this.getContentPaneforTab(name).classList.add('active-content');
+		(this.getTabByLabel(name) as HTMLElement).classList.add('active-label');
 	}
 
 	postEvent(event: Event) {

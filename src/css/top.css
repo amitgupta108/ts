@@ -1,5 +1,6 @@
 :root {
     --body-background: rgb(25, 18, 18);
+    --accented-background: rgba(57, 46, 46, 0.408);
     --inside-border: #454444;
     --disabled-forecolor: #6a6262;
     --hover-seethrough: #6a626268;

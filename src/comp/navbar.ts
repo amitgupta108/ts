@@ -1,3 +1,4 @@
+import { Eventer } from '../services/eventservice.js'
 import type { AppProfile } from '../utils/types';
 import { UIApp } from '../app/ui.js';
 
@@ -30,29 +31,37 @@ export class NavBar {
             btn.style.backgroundColor = "#538a47ff"
             btn.style.color = "white"
         }
+        this.setupListenersEx();
+    }
+
+    setupListenersEx() {
+        Eventer.addEventListener('heartbeat', (state: any) => {
+            const btn: HTMLButtonElement = this.btns.find(x => x.id === 'order-socket-state')!;
+            btn.style.color = state?.connected ? "#4CAF50" : "#f44336";
+        });
     }
 
     onClick(btn: HTMLButtonElement) {
         if (btn.id === "btn-connect") {
-            this.onConnectClick();
+            this.onClickConnect();
         } else if (btn.id === "start-btn") {
-            this.onStartClick();
-        } else if (btn.id === "chart2-btn") {
-            this.onChart2Click();
+            this.onClickStart();
+        } else if (btn.id === "exit-btn") {
+            this.onClickExit();
         }
     }
 
-    onConnectClick() {
+    onClickConnect() {
         //dispatchEvent(new CustomEvent('connect'));
 
     }
 
-    onStartClick() {
+    onClickStart() {
         this.parent.loadPrimaryChart();
     }
 
-    onChart2Click() {
-        this.parent.loadStrategyChart();
+    onClickExit() {
+        this.parent.exit();
     }
 
     enableButton(name: string) {

@@ -19,6 +19,8 @@ class EventService extends EventTarget {
             this.emitOrder(data);
         else if (eventName === 'orderbook')
             this.emitOrderbook(data);
+        else if (eventName === 'heartbeat')
+            this.emitHeartbeat(data);
     }
 
     emitOrder(order: any) {
@@ -30,6 +32,9 @@ class EventService extends EventTarget {
     }
 
     emitQuote(q: Quote) {
+
+        if (!q || !q.symbol)
+            return
 
         const s: Scrip = this.getScrip(q.symbol);
         (q as ExQuote).scrip = s;
@@ -46,6 +51,10 @@ class EventService extends EventTarget {
     emitHistory(data: any) {
         const qs = this.initialSeriesData(data.qA);
         this.dispatchEvent(new CustomEvent(`${data.symbol}_history`, { detail: { symbol: data.symbol, qs: qs } }));
+    }
+
+    emitHeartbeat(data: any) {
+        this.dispatchEvent(new CustomEvent('heartbeat', { detail: data }));
     }
 
     initialSeriesData(qA: any[]): OHLC[] {

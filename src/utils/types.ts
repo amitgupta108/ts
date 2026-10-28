@@ -117,7 +117,7 @@ export interface Order {
 
 export interface OpenPosition {
     quantity: number;
-    value: number;
+    pnl: number;
     avgprice: number;
 }
 

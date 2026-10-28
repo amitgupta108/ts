@@ -39,3 +39,32 @@
         inset 0 1px 2px 0 rgba(0, 0, 0, 0.1),
         inset 0 1px 0 0 rgba(255, 255, 255, 0.5);
 }
+
+.floating-pane {
+    display: none;
+    /* 2. Hides the div by default. */
+    position: absolute;
+    /* 3. Positions the div relative to its parent .hover-cell. */
+    top: 5px;
+    /* Adjust positioning as needed */
+    right: 5px;
+    /* Positions the div to the right of the cell */
+    z-index: 200;
+    /* 4. Ensures the div appears above other content. */
+    height: 20px;
+    justify-items: stretch;
+    gap: 8px;
+    width: fit-content;
+}
+
+.order-list-header-row {
+    display: flex;
+    border: 0.5px solid var(--forecolor);
+    border-radius: 5px;
+    justify-content: space-around;
+    align-content: space-around;
+    gap: 10px;
+    width: 100%;
+    height: 26px;
+    background-color: var(--accented-background);
+}

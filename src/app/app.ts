@@ -49,4 +49,12 @@ export class TPWebApp {
     orderbook() {
         this.serverRef?.orderbook();
     }
+
+    cancelOrder(orderid: string) {
+        this.serverRef?.cancelOrder(orderid);
+    }
+
+    exit() {
+        this.serverRef.exit();
+    }
 }
