@@ -1,0 +1,221 @@
+:root {
+    --body-background: rgb(25, 18, 18);
+    --inside-border: #454444;
+    --disabled-forecolor: #6a6262;
+    --hover-seethrough: #6a626268;
+    --body-hover: #1c1a1a;
+    --element-forecolor: #e5dfdf;
+    --color-sell: #9c2821;
+    --color-buy: #0b781b;
+    --color-other: #3c3c3c;
+    --border-radius: 6px;
+}
+
+/* Base Reset & Layout structure */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body,
+html {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    /* Main window scroll controlled inside containers */
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background-color: var(--body-background);
+}
+
+/* Main Workspace Container */
+.main-container {
+    display: flex;
+    position: absolute;
+    top: 60px;
+    /* Aligns exactly under the navbar */
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: var(--body-background);
+}
+
+#left-container {
+    width: 58%;
+    display: flex;
+    flex-direction: column;
+}
+
+#left-top-pane {
+    height: 6%;
+    overflow-y: auto;
+}
+
+#left-bottom-pane {
+    flex-grow: 1;
+    height: 94%;
+    overflow-y: visible;
+}
+
+#right-container {
+    width: 42%;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Horizontal Split Structure inside Right Container (Initial 50:50) */
+#right-top-pane {
+    height: 40%;
+    min-height: 300px;
+    overflow-y: auto;
+}
+
+#right-bottom-pane {
+    flex-grow: 1;
+    min-height: 240px;
+    overflow-y: auto;
+}
+
+.content-box {
+    display: flex;
+    border: 1px solid var(--inside-border);
+    border-radius: 5px;
+    padding: 2px;
+    height: 100%;
+    flex-direction: column;
+}
+
+table {
+    background-color: var(--body-background);
+    border-radius: var(--border-radius);
+    color: var(--element-forecolor);
+    border: 0px;
+    border-collapse: collapse;
+    width: 100%;
+    overflow-y: scroll;
+    display: table;
+}
+
+tr {
+    min-height: 26px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: row;
+    flex: 1;
+    align-content: center;
+}
+
+th {
+    background-color: var(--element-hover);
+    color: var(--element-forecolor);
+    border: 0px solid var(--inside-border);
+    font-size: 12px;
+    padding: 4px;
+    font-weight: normal;
+    overflow: hidden;
+    text-align: center;
+}
+
+td {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 0.5px solid var(--inside-border);
+    font-size: 12px;
+    padding: 4px;
+    overflow: visible;
+    font-weight: normal;
+    vertical-align: middle;
+    flex-grow: 1;
+}
+
+button {
+    background-color: var(--element-background);
+    border: 0px;
+    color: var(--element-forecolor);
+    padding: 4px 2px;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    font-size: 13px;
+    width: 60px;
+}
+
+button:not(:disabled):hover {
+    background-color: var(--element-hover);
+}
+
+button:disabled {
+    color: var(--disabled-forecolor);
+    cursor: not-allowed;
+}
+
+select {
+    height: 20px;
+    border: 1px solid var(--element-background);
+    border-radius: var(--border-radius);
+    ;
+    background-color: var(--body-background);
+    color: var(--element-forecolor);
+    font-size: 12px;
+    transition: border-color 0.3s;
+}
+
+select.buy {
+    border: 1px solid var(--color-buy);
+}
+
+select.sell {
+    border: 1px solid var(--color-sell);
+}
+
+
+label {
+    color: var(--element-forecolor);
+    font-size: 13px;
+    vertical-align: middle;
+    justify-items: center;
+    justify-content: center;
+    padding: 2px;
+}
+
+.smallbutton {
+    width: 18px;
+    height: 18px;
+    background-color: var(--element-forecolor);
+    border: 1px solid var(--inside-border);
+    border-radius: var(--border-radius);
+    font-size: 11px;
+    font-weight: normal;
+    transition: all .2s ease-in-out;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.smallbutton.order {
+    color: var(--color-other);
+    border-color: var(--color-other);
+}
+
+.smallbutton.order:hover {
+    background-color: var(--element-forecolor);
+}
+
+.smallbutton.buy {
+    color: var(--color-buy);
+    border-color: var(--color-buy);
+}
+
+.smallbutton.buy:hover {
+    background-color: var(--element-forecolor);
+}
+
+.smallbutton.sell {
+    color: var(--color-sell);
+    border-color: var(--color-sell);
+}
+
+.smallbutton.sell:hover {
+    background-color: var(--element-forecolor);
+}

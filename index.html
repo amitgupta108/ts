@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="./src/css/theme.css">
+  <link rel="stylesheet" href="./src/css/top.css">
+  <link rel="stylesheet" href="./src/comp/html/resizer.css">
+  <link rel="stylesheet" href="./src/comp/html/tabgroup.css">
+  <link rel="stylesheet" href="./src/css/optionchain.css">
+  <link rel="stylesheet" href="./src/css/nav-bar.css">
+  <link rel="stylesheet" href="./src/custom/tradebuttons.css">
+  <link rel="stylesheet" href="./src/comp/html/floater.css">
+  <link rel="stylesheet" href="./src/comp/orderwindow.css">
+  <link rel="stylesheet" href="./src/comp/orderlist.css">
+  <link rel="stylesheet" href="./src/css/slider.css">
+  <title>Trading App</title>
+</head>
+
+<body>
+  <nav id="nav-bar" class="navbar">
+    <h2>Trading App</h2>
+    <button id="btn-connect" disabled class="navbar-btn">Connect</button>
+    <button id="start-btn" disabled class="navbar-btn">Start</button>
+    <div id="timer">
+      <label id="timer_date_lb">Date</label>
+      <label id="timer_time_lb">Time</label>
+      <label> Futures| Spot</label>
+      <label id="timer_spot_lb"></label>
+      <label> | Latency: </label>
+      <label id="timer_latency_lb"></label>
+    </div>
+    <label class="switch">
+      <input type="checkbox" id="basket-toggle">
+      <span class="slider round"></span>
+    </label>
+    <button id="socn" class="navbar-btn">@</button>
+    <button id="mode-btn" class="navbar-btn">LIVE</button>
+    <button id="exit-btn" class="navbar-btn">Exit</button>
+  </nav>
+
+  <div class="main-container">
+    <div id="left-container">
+      <div id="left-top-pane">
+      </div>
+      <div id="h-resizer-left" class="resizer resizer-h"></div>
+      <div id="left-bottom-pane">
+      </div>
+    </div>
+
+    <div id="v-resizer" class="resizer resizer-v"></div>
+    <div id="right-container">
+      <div id="right-top-pane">
+      </div>
+      <div id="h-resizer-right" class="resizer resizer-h"></div>
+      <div id="right-bottom-pane">
+      </div>
+    </div>
+  </div>
+
+  <!------------------------------------------------------------------------------------------------------------->
+
+  <div id="order-window" class="floater-window">
+  </div>
+
+  <!------------------------------------------------------------------------------------------------------------->
+  <template id="position-row">
+    <tr>
+      <td width='4%'><input type='checkbox' id="pos-exit-cb"></input></td>
+      <td width='15%' id="scrip"></td>
+      <td width='5%' class="hover-cell">
+        <button id="order-display-btn" class="smallbutton order">N</button>
+        <trade-buttons></trade-buttons>
+      </td>
+      <td width='8%' id="booked-qty">0</td>
+      <td width='12%' id="realized-pl">0.00</td>
+      <td width='10%' id="avg-price">0.00</td>
+      <td width='10%' id="ltp">0.00</td>
+      <td width='8%' id="open-qty">0</td>
+      <td width='14%' id="unrealized-pl">0.00</td>
+      <td width='14%' id="total-pl">0.00</td>
+    </tr>
+  </template>
+
+  <template id="option-chain-row">
+    <tr>
+      <td width="28%"></td>
+      <td width="30%"></td>
+      <td width="42%" class="hover-cell">
+        <label class="icon"></label>
+        <label></label>
+        <trade-buttons></trade-buttons>
+      </td>
+    </tr>
+  </template>
+  <template id="order-window-row">
+    <tr id="order-window-tr" class="ow-row">
+      <td style='width:6%'>
+        <button id='ow-action-btn' class="smallbutton"></button>
+        <div class="ow-row-hover">
+          <label id="ow_row_rm_btn" class="clickable">X</label>
+        </div>
+      </td>
+      <td style='width:30%'>
+        <label id='ow-scrip'></label>
+      </td>
+      <td style='width:14%'>
+        <label id="ow-price"></label>
+      </td>
+      <td style='width:12%'>
+        <select id="ow-lot-select">
+          <option value="1" selected>1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+        </select>
+      </td>
+      <td style='width:18%'>
+        <label class="clickable" id="ow-order-type">MARKET</label>
+      </td>
+      <td style='width:18%'>
+        <input type="text" inputmode="numeric" id="ow-lmtp-input" class="ow-text-input" disabled>
+      </td>
+    </tr>
+  </template>
+  <!------------------------------------------------------------------------------------------------------------------------------------------------------>
+  <script type="importmap">
+        {
+          "imports": {
+            "socket.io-client": "https://cdn.jsdelivr.net/npm/socket.io-client@4.8.4/dist/socket.io.esm.min.js",
+            "@vollib/vollib": "https://esm.unpkg.com/@vollib/vollib",
+            "openalgo-charts": "https://unpkg.com/openalgo-charts@2.6.7/dist/openalgo-charts.mjs",
+            "openalgo-charts/indicators": "https://unpkg.com/openalgo-charts@2.6.7/dist/openalgo-charts.indicators.mjs",
+            "openalgo-charts/draw": "https://unpkg.com/openalgo-charts@2.6.7/dist/openalgo-charts.draw.mjs",
+            "openalgo-charts/widget": "https://unpkg.com/openalgo-charts@2.6.7/dist/openalgo-charts.widget.mjs"
+          }
+        }
+      </script>
+  <script type="module" src="./dist/index.js"></script>
+</body>
+
+</html>

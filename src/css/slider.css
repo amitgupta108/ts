@@ -1,0 +1,46 @@
+/* Container for the switch */
+.switch {
+    position: relative;
+    display: block;
+    width: 48px;
+    height: 18px;
+}
+
+/* Hide default checkbox */
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+/* The slider track */
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 16px;
+    bottom: 0;
+    background-color: var(--disabled-forecolor);
+    transition: .4s;
+    border-radius: 10px;
+}
+
+/* The sliding knob */
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    background-color: var(--element-forecolor);
+    transition: .3s;
+    border-radius: 50%;
+}
+
+input:checked+.slider {
+    background-color: var(--element-background);
+}
+
+input:checked+.slider:before {
+    transform: translateX(14px);
+}

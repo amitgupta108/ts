@@ -1,0 +1,32 @@
+.trade-buttons {
+    display: flex;
+}
+
+.hover-cell {
+    position: relative;
+}
+
+.hover-content {
+    display: none;
+    /* 2. Hides the div by default. */
+    position: absolute;
+    /* 3. Positions the div relative to its parent .hover-cell. */
+    top: 5px;
+    /* Adjust positioning as needed */
+    left: 16px;
+    /* Positions the div to the right of the cell */
+    z-index: 200;
+    /* 4. Ensures the div appears above other content. */
+    height: 18px;
+    justify-items: stretch;
+    width: 72px;
+}
+
+.hover-cell:hover .hover-content {
+    display: flex;
+    justify-content: space-evenly;
+}
+
+.row-highlight {
+    background-color: rgba(169, 148, 107, 0.307);
+}

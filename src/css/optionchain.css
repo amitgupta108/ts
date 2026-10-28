@@ -1,0 +1,34 @@
+.oc-table {
+    width: 100%;
+    table-layout: fixed;
+}
+
+.tr-straight {
+    overflow: hidden;
+    flex-direction: row;
+}
+
+.tr-reverse {
+    overflow: hidden;
+    flex-direction: row-reverse;
+}
+
+.icon {
+    border-radius: 2px;
+    font-size: 12px;
+    margin-right: 5px;
+    transition: all .2s ease-in-out;
+    align-items: center;
+    justify-content: center;
+    padding: 1px;
+}
+
+.icon.buy {
+    color: rgb(56, 103, 224);
+    border-color: rgb(56, 103, 224);
+}
+
+.icon.sell {
+    color: var(--color-red);
+    border-color: var(--color-red);
+}

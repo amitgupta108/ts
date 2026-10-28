@@ -1,0 +1,63 @@
+/* Optional: Forces the cursor across the whole screen during a drag */
+body.is-dragging,
+body.is-dragging * {
+    cursor: move !important;
+}
+
+/* The Main Popup Window */
+.floater-window {
+    position: absolute;
+    top: 60px;
+    left: 425px;
+    width: 400px;
+    min-width: 400px;
+    background-color: var(--body-background);
+    border-radius: 7px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid var(--inside-border);
+    z-index: 9999;
+}
+
+/* Header Area used for Dragging */
+.floater-header {
+    padding: 2px 2px;
+    background-color: var(--disabled-forecolor);
+    overflow: hidden;
+    cursor: move !important;
+    /* Shows the move crosshair cursor */
+    user-select: none;
+    /* Prevents text selection while dragging */
+    touch-action: none !important;
+    display: flex;
+    justify-content: end;
+    align-items: center;
+    height: 24px;
+    flex-grow: 1;
+}
+
+/* The Bottom-Right Resize Handle */
+.floater-resizer-br {
+    width: 12px;
+    height: 12px;
+    background: transparent;
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    cursor: se-resize;
+    /* Diagonal resize cursor */
+}
+
+/* Subtle visual accent for the resize corner */
+.floater-resizer-br::after {
+    content: "";
+    position: absolute;
+    right: 3px;
+    bottom: 3px;
+    width: 6px;
+    height: 6px;
+    border-right: 2px solid #999;
+    border-bottom: 2px solid #999;
+}
