@@ -2,8 +2,8 @@
 .switch {
     position: relative;
     display: block;
-    width: 48px;
-    height: 18px;
+    width: 32px;
+    height: 16px;
 }
 
 /* Hide default checkbox */
@@ -19,19 +19,19 @@
     cursor: pointer;
     top: 0;
     left: 0;
-    right: 16px;
+    right: 1px;
     bottom: 0;
     background-color: var(--disabled-forecolor);
     transition: .4s;
-    border-radius: 10px;
+    border-radius: 8px;
 }
 
 /* The sliding knob */
 .slider:before {
     position: absolute;
     content: "";
-    height: 18px;
-    width: 18px;
+    height: 16px;
+    width: 16px;
     background-color: var(--element-forecolor);
     transition: .3s;
     border-radius: 50%;

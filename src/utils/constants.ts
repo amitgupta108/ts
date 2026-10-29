@@ -17,4 +17,14 @@ export const order_template = {
     modify: false,
     ordertype: ORDERTYPE.MARKET,
     quantity: 1
-} as Order;    
+} as Order;
+
+export const STRIKE_SIZE = {
+    NIFTY: 50,
+    CRUDEOIL: 50
+};
+
+export const LOT_SIZE = {
+    NIFTY: 65,
+    CRUDEOIL: 100
+};

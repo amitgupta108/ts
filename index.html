@@ -20,24 +20,6 @@
 
 <body>
   <nav id="nav-bar" class="navbar">
-    <h2>Trading App</h2>
-    <button id="btn-connect" disabled class="navbar-btn">Connect</button>
-    <button id="start-btn" disabled class="navbar-btn">Start</button>
-    <div id="timer">
-      <label id="timer_date_lb">Date</label>
-      <label id="timer_time_lb">Time</label>
-      <label> Futures| Spot</label>
-      <label id="timer_spot_lb"></label>
-      <label> | Latency: </label>
-      <label id="timer_latency_lb"></label>
-    </div>
-    <label class="switch">
-      <input type="checkbox" id="basket-toggle">
-      <span class="slider round"></span>
-    </label>
-    <button id="order-socket-state" class="navbar-btn">@</button>
-    <button id="mode-btn" class="navbar-btn">LIVE</button>
-    <button id="exit-btn" class="navbar-btn">Exit</button>
   </nav>
 
   <div class="main-container">
@@ -60,10 +42,8 @@
   </div>
 
   <!------------------------------------------------------------------------------------------------------------->
-
   <div id="order-window" class="floater-window">
   </div>
-
   <!------------------------------------------------------------------------------------------------------------->
   <template id="position-row">
     <tr>
@@ -82,7 +62,6 @@
       <td width='14%' id="total-pl">0.00</td>
     </tr>
   </template>
-
   <template id="option-chain-row">
     <tr>
       <td width="28%"></td>

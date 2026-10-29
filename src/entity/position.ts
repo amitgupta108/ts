@@ -17,14 +17,8 @@ export class Position {
     row?: HTMLTableRowElement;
 
     row_fields = {
-        scrip: 1,
-        booked_qty: 3,
-        realized_pl: 4,
-        avg_price: 5,
-        ltp: 6,
-        open_qty: 7,
-        unrealized_pl: 8,
-        total_pl: 9
+        scrip: 1, booked_qty: 3, realized_pl: 4, avg_price: 5,
+        ltp: 6, open_qty: 7, unrealized_pl: 8, total_pl: 9
     } as { [key: string]: number };
 
     constructor(symbol: string, container: HTMLDivElement, uiApp: UIApp) {
@@ -126,7 +120,7 @@ export class Position {
 
             const squared: boolean = (sellq === buyq);
             this.booked.quantity = Math.min(sellq, buyq);
-            this.open.quantity = sellq - buyq;
+            this.open.quantity = buyq - sellq;
 
             if (squared) {
                 this.booked.buyv = buyv;
@@ -135,9 +129,8 @@ export class Position {
                 this.open.pnl = 0;
                 this.open.avgprice = 0;
             }
-
-            this.open.pnl = sellv - buyv;
-            this.open.avgprice = this.open.quantity !== 0 ? this.open.pnl / this.open.quantity : 0;
+            this.open.avgprice = this.open.quantity > 0 ? buyv / buyq : sellv / sellq;
+            this.open.pnl = this.open.quantity * (this.open.avgprice - order.pricedAt!);
         }
     }
 

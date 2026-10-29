@@ -23,6 +23,7 @@ export class UIApp {
     order_dialog?: OrderWindow;
     positions?: Positions;
     orderlist?: OrderList;
+    apploaded: boolean = false;
 
     constructor(parent: TPWebApp) {
         this.parent = parent;
@@ -30,14 +31,26 @@ export class UIApp {
         this.navbar = new NavBar('nav-bar', this);
     }
 
-    init(profile: AppProfile) {
+    init(profile: AppProfile, isConnected: boolean) {
+
+        if (this.apploaded)
+            return;
 
         this.profile = profile;
         this.navbar.init(profile);
         this.layout.init(profile);
 
+        this.navbar.connected(isConnected);
         this.futures_chart = new HistoryChart(this.layout.getChartGroup().getContentPane('Chart1')!);
         this.options_chart = new StrategyChart(this.layout.getChartGroup().getContentPane('Chart2')!);
+
+        const chart_reqs: ChartRequest[] = [
+            { symbol: this.profile!.stockCode + this.profile!.fExpiry + 'FUT', priceScaleId: "right", paneIndex: 0, visible: true },
+            { symbol: this.profile!.stockCode, priceScaleId: "right", paneIndex: 1, visible: true },
+            { symbol: 'INDVIX', priceScaleId: "left", paneIndex: 0, visible: true }
+        ];
+
+        this.futures_chart?.load(chart_reqs);
 
         const expiry1 = this.profile!.oExpiries![0]! as string;
         const expiry2 = this.profile!.oExpiries?.at(1) as string;
@@ -58,19 +71,10 @@ export class UIApp {
         this.orderlist = new OrderList(`${tg_3_id}_Orderbook_content`, this);
         this.orderlist.init();
 
-        this.navbar.enableButton("start-btn");
+        this.apploaded = true;
     }
 
-    loadPrimaryChart() {
-
-        const chart_reqs: ChartRequest[] = [
-            { symbol: this.profile!.stockCode + this.profile!.fExpiry + 'FUT', priceScaleId: "right", paneIndex: 0, visible: true },
-            { symbol: this.profile!.stockCode, priceScaleId: "right", paneIndex: 1, visible: true },
-            { symbol: 'INDVIX', priceScaleId: "left", paneIndex: 0, visible: true }
-        ];
-
-        this.futures_chart?.load(chart_reqs);
-
+    start() {
         const history_requests = this.historyRequests([
             this.profile!.stockCode + this.profile!.fExpiry + 'FUT',
             this.profile!.stockCode,
@@ -156,19 +160,21 @@ export class UIApp {
         }
     }
 
+    notifyServerEvent(e: { name: string, detail: string }) {
+
+
+    }
+
     isBasketEnabled() {
-        return this.navbar.isBasketEnabled();
+        return this.layout.getOCGroup().isBasketEnabled();
     }
 
     disableBasketToggle(flag: boolean) {
-        this.navbar.disableBasketToggle(flag);
+        this.layout.getOCGroup().disableBasketToggle(flag);
     }
 
-    getAppProfile(property: keyof AppProfile | undefined = undefined) {
-        if (property === undefined)
-            return this.profile;
-        else
-            return this.profile?.[property];
+    getProfileProperty(property: "stockCode" | "fExpiry" | "appid"): number | string | undefined | string[] {
+        return this.profile?.[property];
     }
 
     orderbook() {
@@ -187,5 +193,9 @@ export class UIApp {
 
     exit() {
         this.parent.exit();
+    }
+
+    connect() {
+        this.parent.connect(this.profile!);
     }
 }

@@ -3,16 +3,19 @@ import { io } from "socket.io-client";
 import type { Socket } from "socket.io-client";
 import { Eventer } from "./eventservice.js";
 import type { AppProfile } from "../utils/types.js";
+import type { UIApp } from "../app/ui.js";
 
 export class ServerInterface {
     socket: Socket | null = null;
     host: string | null = null;
     profile: AppProfile | null = null;
+    uiApp: UIApp;
 
-    constructor() {
+    constructor(uiApp: UIApp) {
         this.socket = null;
         this.host = null;
         this.profile = null;
+        this.uiApp = uiApp;
     }
 
     connect(host: string, profile: AppProfile): boolean {
@@ -49,11 +52,8 @@ export class ServerInterface {
         try {
             this.socket?.on("connect", () => {
                 console.log("socket connected for appid" + this.socket?.id + "-" + this.profile?.appid + "-" + this.socket?.recovered);
-                /*                
-                    if (profile.mode === "HISTORY")
-                        document.getElementById("optionSpeed").disabled = false;
-    
-                    */
+
+                Eventer.eventDispatch('isConnected', { connected: this.isConnected() });
             });
 
             this.socket?.on("connect_error", (error: any) => {
@@ -62,11 +62,13 @@ export class ServerInterface {
                     console.log("connection error reconnection to be tried " + this.socket?.id);
                 else
                     console.log("No reconnection " + error.message);
+                Eventer.eventDispatch('isConnected', { connected: this.isConnected() });
             });
 
             this.socket?.on("disconnect", (reason: any) => {
                 //bottom_btns[0].disabled = false;
                 console.log("disconnected for socketid-appid " + this.socket?.id + "-" + this.profile?.appid + "-" + reason);
+                Eventer.eventDispatch('isConnected', { connected: this.isConnected() });
             });
 
             this.socket?.on("history", (data: any) => {
@@ -87,25 +89,23 @@ export class ServerInterface {
             });
 
             this.socket?.on("exit", (response: string) => {
-                window.location.reload();
+                if (response === 'user initiated')
+                    window.location.reload();
             });
 
             this.socket?.on("hb", (resp: any) => {
                 Eventer.eventDispatch('heartbeat', { connected: resp?.order_socket === 1 });
             });
 
-            /*            
             this.socket?.on("stream", (response: string) => {
                 if (response === "paused")
-                    document.getElementById("btnStopSim").innerText = "Resume";
+                    this.uiApp.notifyServerEvent({ name: "resumeStream", detail: "paused" });
                 else if (response === "resumed")
-                    document.getElementById("btnStopSim").innerText = "Stop";
+                    this.uiApp.notifyServerEvent({ name: "stopStream", detail: "resumed" });
                 else if (response === "started") {
-                    bottom_btns[2].disabled = false;
-                    bottom_btns[5].disabled = false;
+                    this.uiApp.notifyServerEvent({ name: "startStream", detail: "started" });
                 }
             });
-            */
         }
         catch (error) {
             console.log(error);

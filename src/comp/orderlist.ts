@@ -57,7 +57,7 @@ export class OrderList {
             const display = ((row.cells[0] as HTMLTableCellElement).textContent === scrip || scrip === 'Reset') ? 'flex' : 'none';
             row.style.display = display;
 
-            if (!(scrip === undefined || scrip === '' || scrip === 'Reset')) {
+            if (!(scrip === undefined || scrip === '' || scrip === 'Reset') && row.style.display === 'flex') {
                 const qty: number = row.cells[7]?.textContent === 'C' ? Number(row.cells[3]?.textContent) : 0;
                 tqty += qty * (row.cells[2]?.textContent === ORDERACTION.BUY ? 1 : -1);
                 row.cells[5]!.textContent = String(tqty);
@@ -102,13 +102,11 @@ export class OrderList {
         const tbody = this.container.querySelector('tbody') as HTMLTableSectionElement;
         tbody.innerHTML = '';
 
-        let tqty: number = 0;
         orders.forEach((order: Order) => {
             const new_row = this.createRow();
             new_row.title = order.orderid;
 
             const cells = Array.from(new_row.children) as HTMLTableCellElement[];
-
             cells[0]!.textContent = Eventer.getScrip(order.symbol).name ?? '';
             const time = order.executiontime ?? order.submittime;
             cells[1]!.textContent = (time) ? new Date(time).toLocaleTimeString() : '-';
@@ -118,9 +116,9 @@ export class OrderList {
             cells[6]!.textContent = (order.state === ORDERSTATE.OPENED ? order.price :
                 order.state === ORDERSTATE.CANCELLED ? 0 : order.pricedAt)?.toFixed(2) ?? '';
             cells[7]!.textContent = order.state.slice(0, 1).toUpperCase();
-            if (order.state === ORDERSTATE.OPENED) {
+            if (order.state === ORDERSTATE.OPENED)
                 this.cancelDialog(cells[8] as HTMLTableCellElement);
-            }
+
             this.container.querySelector('tbody')!.append(new_row);
         });
     }

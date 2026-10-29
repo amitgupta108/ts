@@ -1,14 +1,16 @@
 import type { Order, Quote } from "../utils/types.js";
-import { ORDERACTION, ORDERSTATE } from "../utils/types.js";
+import { ORDERACTION } from "../utils/types.js";
 import { Eventer } from "../services/eventservice.js";
 import { UIApp } from "../app/ui.js";
 import { Position } from "../entity/position.js";
+import { LOT_SIZE } from "../utils/constants.js";
 
 export class Positions {
     positions: Map<string, Position>;
     container: HTMLDivElement;
     parent: UIApp;
     pl_fields_ref?: HTMLTableCellElement[];
+    stockCode?: string;
 
     constructor(id: string, parent: UIApp) {
         this.positions = new Map<string, Position>();
@@ -118,7 +120,7 @@ export class Positions {
                 const symbol = (checkbox.parentNode!.parentNode! as HTMLTableRowElement).title;
                 const p = this.positions.get(symbol)!;
                 const action = Math.sign(p.open.quantity) === 1 ? ORDERACTION.SELL : ORDERACTION.BUY;
-                const quantity = Math.abs(p.open.quantity);
+                const quantity = Math.abs(p.open.quantity) / (LOT_SIZE[this.parent.getProfileProperty('stockCode') as keyof typeof LOT_SIZE]);
                 this.parent.newOrderMulti(symbol, action, quantity);
                 checkbox.checked = false;
             });

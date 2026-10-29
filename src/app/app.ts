@@ -10,17 +10,16 @@ export class TPWebApp {
     uiApp: UIApp;
 
     constructor() {
-        this.serverRef = new ServerInterface();
-
         this.uiApp = new UIApp(this);
+        this.serverRef = new ServerInterface(this.uiApp);
     }
 
     connect(profile: AppProfile): void {
         try {
             this.profile = profile;
-            this.serverRef.connect(host, profile);
+            const isConnected = this.serverRef.connect(host, profile);
 
-            this.uiApp.init(profile);
+            this.uiApp.init(profile, isConnected);
         } catch (error) {
             console.error(error);
         }

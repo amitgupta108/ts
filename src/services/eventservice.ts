@@ -21,6 +21,8 @@ class EventService extends EventTarget {
             this.emitOrderbook(data);
         else if (eventName === 'heartbeat')
             this.emitHeartbeat(data);
+        else if (eventName === 'isConnected')
+            this.emitIsConnected(data);
     }
 
     emitOrder(order: any) {
@@ -40,11 +42,9 @@ class EventService extends EventTarget {
         (q as ExQuote).scrip = s;
 
         this.dispatchEvent(new CustomEvent('quote', { detail: q }));
-        if (q.key === "futures") {
-            //latency_label.textContent = Date.now() - q.ltt;
+        if (q.key === "futures" && q.ltp !== this.lastfq?.ltp) {
             this.lastfq = q;
-            if (q.exchange.toLowerCase().startsWith("mcx"))
-                super.dispatchEvent(new CustomEvent('quote', { detail: q }));
+            this.dispatchEvent(new CustomEvent('latency', { detail: Date.now() - (q.ltt) }));
         }
     }
 
@@ -55,6 +55,10 @@ class EventService extends EventTarget {
 
     emitHeartbeat(data: any) {
         this.dispatchEvent(new CustomEvent('heartbeat', { detail: data }));
+    }
+
+    emitIsConnected(data: any) {
+        this.dispatchEvent(new CustomEvent('isConnected', { detail: data }));
     }
 
     initialSeriesData(qA: any[]): OHLC[] {

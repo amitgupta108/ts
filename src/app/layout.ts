@@ -40,6 +40,7 @@ export class Layout {
 
         this.chart_group.render(["Chart1", "Chart2"]);
         this.oc_group.render(this.profile.oExpiries);
+        this.oc_group.createBasketToggle();
         this.positions_group.render(["Positions", "Orderbook", "NetPosition"]);
     }
 

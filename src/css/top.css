@@ -79,7 +79,7 @@ html {
 
 .content-box {
     display: flex;
-    border: 1px solid var(--inside-border);
+    border: 0px solid var(--inside-border);
     border-radius: 5px;
     padding: 2px;
     height: 100%;

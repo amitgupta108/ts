@@ -27,6 +27,7 @@ export class TabGroup extends EventTarget {
 
 	options(): void {
 		const action_tab = document.createElement('div');
+
 		action_tab.classList.add('action-tab');
 		for (let i = 0; i < 2; i++) {
 			const btn = document.createElement('button');
@@ -40,6 +41,22 @@ export class TabGroup extends EventTarget {
 			action_tab.appendChild(btn);
 		}
 		this.label_group.appendChild(action_tab);
+	}
+
+	createBasketToggle(): void {
+		let toggle = document.createElement('input');
+		toggle.type = 'checkbox';
+		toggle.id = 'basket-toggle';
+
+		let span = document.createElement('span');
+		span.classList.add('slider');
+		span.classList.add('round');
+
+		const label = document.createElement('label');
+		label.classList.add('switch');
+		label.append(toggle, span);
+
+		this.label_group.querySelector('.action-tab')!.prepend(label);
 	}
 
 	render(names: string[]): HTMLDivElement {
@@ -121,6 +138,14 @@ export class TabGroup extends EventTarget {
 
 		this.getContentPaneforTab(name).classList.add('active-content');
 		(this.getTabByLabel(name) as HTMLElement).classList.add('active-label');
+	}
+
+	isBasketEnabled(): boolean {
+		return (this.self.querySelector('#basket-toggle') as HTMLInputElement).checked;
+	}
+
+	disableBasketToggle(flag: boolean) {
+		(this.self.querySelector('#basket-toggle') as HTMLInputElement).disabled = flag;
 	}
 
 	postEvent(event: Event) {

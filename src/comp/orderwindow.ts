@@ -48,6 +48,7 @@ export class OrderWindow extends Floater {
         const btn_submit = document.createElement('button');
         btn_submit.textContent = "Submit";
         btn_submit.id = "ow-submit-btn";
+        btn_submit.disabled = true;
 
         tfoot.appendChild(btn_cancel);
         tfoot.appendChild(btn_validate);
@@ -185,8 +186,8 @@ export class OrderWindow extends Floater {
 
     getOrderTemplate(symbol: string, action: ORDERACTION) {
         const order = structuredClone(order_template);
-        order.appid = this.parent.getAppProfile('appid') as string;
-        order.stockCode = this.parent.getAppProfile('stockCode') as string;
+        order.appid = this.parent.getProfileProperty('appid') as string;
+        order.stockCode = this.parent.getProfileProperty('stockCode') as string;
         order.ordertype = ORDERTYPE.MARKET
         order.symbol = symbol;
         order.action = action;

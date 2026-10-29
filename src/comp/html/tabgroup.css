@@ -48,7 +48,8 @@
 .action-tab {
     display: flex;
     justify-content: flex-end;
-    gap: 6px;
-    margin: 1px;
+    align-items: center;
+    gap: 5px;
+    margin-right: 5px;
     flex: 2;
 }

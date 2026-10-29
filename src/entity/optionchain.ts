@@ -3,28 +3,24 @@ import { type ExQuote, type ORDERACTION } from '../utils/types.js';
 import { RowFactory } from '../utils/factory.js';
 import { OptionGreeks } from '../utils/greeks.js';
 import { UIApp } from '../app/ui.js';
-
-const STRIKE_SIZE = {
-    NIFTY: 50,
-    CRUDEOIL: 50
-};
-
+import { STRIKE_SIZE } from '../utils/constants.js';
 export class OptionChain {
     static optionChains: Map<string, OptionChain> = new Map();
 
     expiry: string;
     container: HTMLDivElement;
     atm: number = 0;
-    row_map: Map<string, any> = new Map();
-    OTMRange = { high: 8, low: 1 };
+    row_map: Map<string, HTMLTableRowElement> = new Map();
+    OTMRange = { high: 9, low: 2 };
     parent: UIApp;
     interval: number;
+    decorations = new Map();
 
     constructor(expiry: string, v_oc_id: string, parent: UIApp) {
         this.expiry = expiry;
         this.container = document.getElementById(v_oc_id) as HTMLDivElement;
         this.parent = parent;
-        this.interval = STRIKE_SIZE[this.parent.getAppProfile('stockCode') as keyof typeof STRIKE_SIZE];
+        this.interval = STRIKE_SIZE[this.parent.getProfileProperty('stockCode') as keyof typeof STRIKE_SIZE];
 
         OptionChain.optionChains.set(expiry, this);
     }
@@ -74,7 +70,7 @@ export class OptionChain {
         const parent = e.currentTarget as HTMLTableRowElement;
 
         if (clicked.id === 'row_attn_btn')
-            parent.classList.toggle('row-highlight');
+            this.highlightRow(parent.title, parent, 'toggle');
         else if (clicked.id === 'div_trans_btn')
             this.createOrder(clicked, parent);
     }
@@ -92,7 +88,7 @@ export class OptionChain {
             const range = this.OTMRange.high - this.OTMRange.low;
 
             this.row_map.clear();
-            for (var i = 0; i < range; i++) {
+            for (var i = 0; i <= range; i++) {
                 this.strike('CE', i);
                 this.strike('PE', i);
             }
@@ -100,10 +96,9 @@ export class OptionChain {
     }
 
     strike(type: 'CE' | 'PE', i: number) {
-
         const strike = type === 'CE' ? this.atm + (this.OTMRange.low + i) * this.interval :
             this.atm - (this.OTMRange.high - i) * this.interval;
-        const symbol = this.parent.getAppProfile('stockCode') + this.expiry + strike + type;
+        const symbol = this.parent.getProfileProperty('stockCode') + this.expiry + strike + type;
 
         const [call_tbl, put_tbl] = this.container.querySelectorAll('table');
         const rows = type === 'CE' ? call_tbl!.rows : put_tbl!.rows;
@@ -114,11 +109,53 @@ export class OptionChain {
     }
 
     onQuote(q: ExQuote): void {
-        const row = this.row_map.get(q.symbol);
+        const row = this.row_map.get(q.symbol) as HTMLTableRowElement;
 
         if (row !== undefined) {
-            row.cells[1].textContent = q.ltp.toFixed(2);
-            row.cells[0].textContent = OptionGreeks.addIVNDelta(q, Eventer.lastfq!.ltp).toFixed(2);
+            (row.cells[1] as HTMLTableCellElement).textContent = q.ltp.toFixed(2);
+            (row.cells[0] as HTMLTableCellElement).textContent = OptionGreeks.addIVNDelta(q, Eventer.lastfq!.ltp).toFixed(2);
+        }
+    }
+
+    decorate(symbol: string, decoration: { key: string, value: any }) {
+        const row = this.row_map.get(symbol);
+        if (row !== undefined) {
+            if (decoration.key === 'highlight')
+                this.highlightRow(symbol, row, decoration.value)
+            else if (decoration.key === 'positionsize')
+                this.showOpenPosition(symbol, row, decoration.value);
+        }
+    }
+
+    highlightRow(symbol: string, row: HTMLTableRowElement, action: string) {
+        if (action === 'toggle') {
+            row.classList.remove('row-hightlight');
+            if (this.decorations.get(`${symbol}_hightlight`) === undefined)
+                action = 'add';
+            else
+                action = 'remove';
+        }
+
+        if (action === 'add') {
+            row.classList.add('row-hightlight');
+            this.decorations.set(`${symbol}_hightlight`, action);
+        }
+        else if (action === 'remove') {
+            row.classList.remove('row-hightlight');
+            this.decorations.delete(`${symbol}_hightlight`);
+        }
+    }
+
+    showOpenPosition(symbol: string, row: HTMLTableRowElement, psize: number) {
+        if (psize === 0) {
+            (row.cells[2]!.childNodes[1] as HTMLElement).textContent = '';
+            row.classList.remove('buy', 'sell');
+            this.decorations.delete(`${symbol}_positionsize`);
+        }
+        else {
+            (row.cells[2]!.childNodes[1] as HTMLElement).textContent = String(psize);
+            (row.cells[2]!.childNodes[1] as HTMLElement).classList.add(psize > 0 ? 'buy' : 'sell');
+            this.decorations.set(`${symbol}_positionsize`, psize);
         }
     }
 
@@ -126,12 +163,13 @@ export class OptionChain {
         const row = this.row_map.get(symbol);
 
         if (row) {
+            const cell = row.cells[2] as HTMLTableCellElement;
             if (psize === 0) {
-                row.cells[2].childNodes[1].textContent = '';
+                (cell.childNodes[1] as HTMLElement).textContent = '';
                 row.classList.remove('buy', 'sell');
             }
             else {
-                row.cells[2].childNodes[1].textContent = psize;
+                (cell.childNodes[1] as HTMLElement).textContent = psize.toFixed(0);
                 row.classList.add(psize > 0 ? 'buy' : 'sell');
             }
         }
